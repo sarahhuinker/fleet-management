@@ -1,16 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Vehicles</title>
+    <meta charset="UTF-8">
+    <title>Fleet Vehicles</title>
 </head>
 <body>
-    <h1>Vehicles List</h1>
-    <ul>
-        {% for vehicle in vehicles %}
-        <li>{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }}) - VIN: {{ vehicle.vin }}</li>
+    <h1>Fleet Vehicles</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th><th>Make</th><th>Model</th><th>Year</th><th>VIN</th>
+        </tr>
+        {% for v in vehicles %}
+        <tr>
+            <td>{{ v.id }}</td>
+            <td>{{ v.make }}</td>
+            <td>{{ v.model }}</td>
+            <td>{{ v.year }}</td>
+            <td>{{ v.vin }}</td>
+        </tr>
         {% endfor %}
-    </ul>
+    </table>
 </body>
 </html>
+
 
 
