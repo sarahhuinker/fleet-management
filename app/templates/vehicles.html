@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vehicles</title>
+</head>
+<body>
+    <h1>Vehicles List</h1>
+    <ul>
+        {% for vehicle in vehicles %}
+        <li>{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }}) - VIN: {{ vehicle.vin }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
+
