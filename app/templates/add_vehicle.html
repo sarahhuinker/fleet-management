@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Add Vehicle{% endblock %}
+
+{% block content %}
+  <!-- Form heading -->
+  <h1 class="mb-4">Add a New Vehicle</h1>
+
+  <!--
+    Use Bootstrap’s grid (.row, .col-*) and spacing (.g-3)
+    for a neat multi-column layout.
+  -->
+  <form method="POST" class="row g-3">
+    <!-- Make field -->
+    <div class="col-md-6">
+      <label class="form-label">Make</label>
+      <input type="text" name="make" class="form-control" required>
+    </div>
+
+    <!-- Model field -->
+    <div class="col-md-6">
+      <label class="form-label">Model</label>
+      <input type="text" name="model" class="form-control" required>
+    </div>
+
+    <!-- Year field -->
+    <div class="col-md-4">
+      <label class="form-label">Year</label>
+      <input type="number" name="year" class="form-control" required>
+    </div>
+
+    <!-- VIN field -->
+    <div class="col-md-8">
+      <label class="form-label">VIN</label>
+      <input type="text" name="vin" class="form-control" required>
+    </div>
+
+    <!-- Form buttons -->
+    <div class="col-12">
+      <button type="submit" class="btn btn-success">
+        Add Vehicle
+      </button>
+      <a href="{{ url_for('main.home') }}" class="btn btn-secondary">
+        Cancel
+      </a>
+    </div>
+  </form>
+{% endblock %}
