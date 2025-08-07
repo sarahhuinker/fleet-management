@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% block title %}Edit Vehicle #{{ vehicle.id }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+
+  <!-- Page header -->
+  <h1 class="mb-4">Edit Vehicle #{{ vehicle.id }}</h1>
+
+  <form method="POST" enctype="multipart/form-data">
+
+    <!-- ── BASIC INFO & STATUS ─────────────────────────────────────────────── -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">Basic Info & Status</div>
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-2">
+            <label class="form-label">Out of Service</label><br>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox"
+                     name="out_of_service" id="out_of_service"
+                     {% if vehicle.out_of_service %}checked{% endif %}>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">VIN/SN</label>
+            <input type="text" class="form-control" name="vin"
+                   value="{{ vehicle.vin }}" readonly>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Year</label>
+            <input type="number" name="year" class="form-control"
+                   value="{{ vehicle.year }}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Make & Model</label>
+            <div class="input-group">
+              <input type="text" name="make" class="form-control"
+                     placeholder="Make" value="{{ vehicle.make }}">
+              <input type="text" name="model" class="form-control"
+                     placeholder="Model" value="{{ vehicle.model }}">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ASSET IDENTIFIERS ────────────────────────────────────────────────── -->
+    <div class="card mb-4">
+      <div class="card-header bg-secondary text-white">Asset Identifiers</div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">Veh No</label>
+            <input type="text" name="veh_no" class="form-control"
+                   value="{{ vehicle.veh_no }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Unit No</label>
+            <input type="text" name="unit_no" class="form-control"
+                   value="{{ vehicle.unit_no }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Tag No</label>
+            <input type="text" name="tag_no" class="form-control"
+                   value="{{ vehicle.tag_no }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Entity Code</label>
+            <input type="text" name="entity_code" class="form-control"
+                   value="{{ vehicle.entity_code }}">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TRACKING & UTILIZATION ─────────────────────────────────────────── -->
+    <div class="card mb-4">
+      <div class="card-header bg-secondary text-white">Tracking & Utilization</div>
+      <div class="card-body">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-2">
+            <label class="form-label">Odometer</label>
+            <input type="number" name="odometer" class="form-control"
+                   value="{{ vehicle.odometer }}">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Hours</label>
+            <input type="number" name="hours" class="form-control"
+                   value="{{ vehicle.hours }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Mode</label>
+            <select name="utilization_mode" class="form-select">
+              {% for opt in ['odometer','hours','both'] %}
+              <option value="{{ opt }}" {% if vehicle.utilization_mode==opt %}selected{% endif %}>
+                {{ opt|capitalize }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Auto Util</label><br>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox"
+                     name="auto_util" id="auto_util"
+                     {% if vehicle.auto_utilization %}checked{% endif %}>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RENEWALS ─────────────────────────────────────────────────────────── -->
+    <div class="card mb-4">
+      <div class="card-header bg-secondary text-white">Renewals</div>
+      <div class="card-body">
+        <div class="row g-3">
+          {% for field,label in [
+            ('registration_date','Registration'),
+            ('emission_date','Emission'),
+            ('inspection_date','Inspection'),
+            ('insurance_date','Insurance')
+          ] %}
+          <div class="col-md-3">
+            <label class="form-label">{{ label }}</label>
+            <input type="date" name="{{ field }}" class="form-control"
+                   value="{{ vehicle[field].isoformat() if vehicle[field] else '' }}">
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── OPERATOR & LOCATION ──────────────────────────────────────────────── -->
+    <div class="card mb-4">
+      <div class="card-header bg-secondary text-white">Operator & Location</div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">Operator</label>
+            <input type="text" name="operator" class="form-control"
+                   value="{{ vehicle.operator }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Location</label>
+            <input type="text" name="location" class="form-control"
+                   value="{{ vehicle.location }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Building</label>
+            <input type="text" name="building" class="form-control"
+                   value="{{ vehicle.building }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control"
+                   value="{{ vehicle.email }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">SMS</label>
+            <input type="text" name="sms" class="form-control"
+                   value="{{ vehicle.sms }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">E-ZPass</label>
+            <input type="text" name="ezpass" class="form-control"
+                   value="{{ vehicle.ezpass }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Fuel Card</label>
+            <input type="text" name="fuel_card" class="form-control"
+                   value="{{ vehicle.fuel_card }}">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ORGANIZATION ──────────────────────────────────────────────────────── -->
+    <div class="card mb-4">
+      <div class="card-header bg-secondary text-white">Organization</div>
+      <div class="card-body">
+        <div class="row g-3">
+          {% for field,label in [
+            ('chargeback','Chargeback'),
+            ('department','Department'),
+            ('manager','Manager'),
+            ('director','Director')
+          ] %}
+          <div class="col-md-3">
+            <label class="form-label">{{ label }}</label>
+            <input type="text" name="{{ field }}" class="form-control"
+                   value="{{ vehicle[field] }}">
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── WORK ORDER DEFAULTS ──────────────────────────────────────────────── -->
+    <div class="card mb-4">
+      <div class="card-header bg-secondary text-white">Work Order Defaults</div>
+      <div class="card-body">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-3">
+            <label class="form-label">WO Type</label><br>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio"
+                     name="default_wodefault" value="Employee"
+                     {% if vehicle.default_wodefault=='Employee' %}checked{% endif %}>
+              <label class="form-check-label">Employee</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio"
+                     name="default_wodefault" value="Vendor"
+                     {% if vehicle.default_wodefault=='Vendor' %}checked{% endif %}>
+              <label class="form-check-label">Vendor</label>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Parts Vendor</label>
+            <input type="text" name="default_parts_vendor" class="form-control"
+                   value="{{ vehicle.default_parts_vendor }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Issued/Serviced By</label>
+            <input type="text" name="default_issued_by" class="form-control"
+                   value="{{ vehicle.default_issued_by }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Inventory Warehouse</label>
+            <input type="text" name="inventory_warehouse" class="form-control"
+                   value="{{ vehicle.inventory_warehouse }}">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CUSTOM FIELDS ─────────────────────────────────────────────────────── -->
+    <div class="card mb-4">
+      <div class="card-header bg-secondary text-white">Custom Fields</div>
+      <div class="card-body">
+        <textarea name="custom_fields" class="form-control" rows="3"
+                  placeholder="Any additional custom info…">{{ vehicle.custom_fields }}</textarea>
+      </div>
+    </div>
+
+    <!-- ── PHOTO & INVOICE UPLOADS ───────────────────────────────────────────── -->
+    <div class="card mb-4">
+      <div class="card-header bg-secondary text-white">Uploads</div>
+      <div class="card-body row g-4">
+        <div class="col-md-6">
+          <label class="form-label">Photo</label>
+          {% if vehicle.photo_filename %}
+            <img src="{{ url_for('static', filename='uploads/' ~ vehicle.photo_filename) }}"
+                 class="img-thumbnail mb-2" width="150">
+          {% endif %}
+          <input type="file" name="photo" class="form-control" accept="image/*">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Invoice</label>
+          {% if vehicle.invoice_filename %}
+            <p>
+              <a href="{{ url_for('static', filename='uploads/' ~ vehicle.invoice_filename) }}"
+                 class="btn btn-sm btn-outline-secondary" target="_blank">
+                View Current Invoice
+              </a>
+            </p>
+          {% endif %}
+          <input type="file" name="invoice" class="form-control"
+                 accept="application/pdf,image/*">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SAVE / BACK ───────────────────────────────────────────────────────── -->
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn btn-success me-2">Save All Changes</button>
+      <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary">
+        ← Back to List
+      </a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

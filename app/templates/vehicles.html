@@ -4,38 +4,19 @@
 {% block content %}
   <h1 class="mb-4">Fleet Vehicles</h1>
 
-  <!-- Search form (unchanged) -->
-  <form
-    method="GET"
-    action="{{ url_for('main.home') }}"
-    class="d-flex mb-3"
-  >
-    <input
-      type="text"
-      name="q"
-      class="form-control me-2"
-      placeholder="Search by make or model"
-      value="{{ q }}"
-    >
+  <!-- Search & Add New -->
+  <form method="GET" action="{{ url_for('main.home') }}" class="d-flex mb-3">
+    <input type="text" name="q" class="form-control me-2"
+           placeholder="Search by make or model" value="{{ q }}">
     <button type="submit" class="btn btn-outline-primary">Search</button>
   </form>
-
-  <!-- Add-new button -->
-  <a href="{{ url_for('main.add_vehicle') }}" class="btn btn-primary mb-3">
-    + Add New Vehicle
-  </a>
+  <a href="{{ url_for('main.add_vehicle') }}" class="btn btn-primary mb-3">+ Add New Vehicle</a>
 
   <table class="table table-striped table-hover">
     <thead class="table-dark">
       <tr>
-        <th>ID</th>
-        <th>Make</th>
-        <th>Model</th>
-        <th>Year</th>
-        <th>VIN</th>
-        <th>Photo</th>
-        <th>Invoice</th>
-        <th>Actions</th>
+        <th>ID</th><th>Make</th><th>Model</th><th>Year</th><th>VIN</th>
+        <th>Photo</th><th>Invoice</th><th>Miles</th><th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -50,96 +31,36 @@
         <!-- Photo thumbnail -->
         <td>
           {% if v.photo_filename %}
-            <img
-              src="{{ url_for('static', filename='uploads/' ~ v.photo_filename) }}"
-              width="80"
-              class="img-fluid"
-            >
-          {% else %}
-            &mdash;
-          {% endif %}
+            <img src="{{ url_for('static', filename='uploads/' ~ v.photo_filename) }}"
+                 width="60" class="img-fluid">
+          {% else %}&mdash;{% endif %}
         </td>
 
-        <!-- Invoice download link -->
+        <!-- Invoice link -->
         <td>
           {% if v.invoice_filename %}
-            <a
-              href="{{ url_for('static', filename='uploads/' ~ v.invoice_filename) }}"
-              target="_blank"
-            >
-              Download
-            </a>
-          {% else %}
-            &mdash;
-          {% endif %}
+            <a href="{{ url_for('static', filename='uploads/' ~ v.invoice_filename) }}"
+               target="_blank">Download</a>
+          {% else %}&mdash;{% endif %}
         </td>
 
-        <!-- Edit / Delete -->
+        <td>{{ v.miles }}</td>
+
+        <!-- Actions: View, Edit, Delete -->
         <td>
-          <a
-            href="{{ url_for('main.edit_vehicle', vehicle_id=v.id) }}"
-            class="btn btn-sm btn-outline-secondary"
-          >Edit</a>
-          <a
-            href="{{ url_for('main.delete_vehicle', vehicle_id=v.id) }}"
-            class="btn btn-sm btn-outline-danger"
-            onclick="return confirm('Delete this vehicle?');"
-          >Delete</a>
+          <a href="{{ url_for('main.vehicle_detail', vehicle_id=v.id) }}"
+             class="btn btn-sm btn-info">View</a>
+          <a href="{{ url_for('main.edit_vehicle', vehicle_id=v.id) }}"
+             class="btn btn-sm btn-outline-secondary">Edit</a>
+          <a href="{{ url_for('main.delete_vehicle', vehicle_id=v.id) }}"
+             class="btn btn-sm btn-outline-danger"
+             onclick="return confirm('Delete this vehicle?');">Delete</a>
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 
-  <!-- Pagination controls (unchanged) -->
-  <nav aria-label="Page navigation">
-    <ul class="pagination">
-      {% if pagination.has_prev %}
-      <li class="page-item">
-        <a
-          class="page-link"
-          href="{{ url_for('main.home', page=pagination.prev_num, q=q) }}"
-        >Previous</a>
-      </li>
-      {% else %}
-      <li class="page-item disabled">
-        <span class="page-link">Previous</span>
-      </li>
-      {% endif %}
-
-      {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-        {% if p %}
-          {% if p == pagination.page %}
-            <li class="page-item active">
-              <span class="page-link">{{ p }}</span>
-            </li>
-          {% else %}
-            <li class="page-item">
-              <a
-                class="page-link"
-                href="{{ url_for('main.home', page=p, q=q) }}"
-              >{{ p }}</a>
-            </li>
-          {% endif %}
-        {% else %}
-          <li class="page-item disabled">
-            <span class="page-link">…</span>
-          </li>
-        {% endif %}
-      {% endfor %}
-
-      {% if pagination.has_next %}
-      <li class="page-item">
-        <a
-          class="page-link"
-          href="{{ url_for('main.home', page=pagination.next_num, q=q) }}"
-        >Next</a>
-      </li>
-      {% else %}
-      <li class="page-item disabled">
-        <span class="page-link">Next</span>
-      </li>
-      {% endif %}
-    </ul>
-  </nav>
+  <!-- Pagination (unchanged) -->
+  <nav aria-label="Page navigation">…</nav>
 {% endblock %}
