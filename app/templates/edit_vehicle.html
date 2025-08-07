@@ -2,58 +2,104 @@
 {% block title %}Edit Vehicle{% endblock %}
 
 {% block content %}
-  <!-- Heading shows which vehicle we’re editing -->
   <h1 class="mb-4">Edit Vehicle #{{ vehicle.id }}</h1>
 
-  <form method="POST" class="row g-3">
-    <!-- Pre-filled Make field -->
+  <form method="POST" enctype="multipart/form-data" class="row g-3">
+
+    <!-- Make -->
     <div class="col-md-6">
       <label class="form-label">Make</label>
-      <input type="text"
-             name="make"
-             value="{{ vehicle.make }}"
-             class="form-control"
-             required>
+      <input
+        type="text"
+        name="make"
+        value="{{ vehicle.make }}"
+        class="form-control"
+        required
+      >
     </div>
 
-    <!-- Pre-filled Model field -->
+    <!-- Model -->
     <div class="col-md-6">
       <label class="form-label">Model</label>
-      <input type="text"
-             name="model"
-             value="{{ vehicle.model }}"
-             class="form-control"
-             required>
+      <input
+        type="text"
+        name="model"
+        value="{{ vehicle.model }}"
+        class="form-control"
+        required
+      >
     </div>
 
-    <!-- Pre-filled Year field -->
+    <!-- Year -->
     <div class="col-md-4">
       <label class="form-label">Year</label>
-      <input type="number"
-             name="year"
-             value="{{ vehicle.year }}"
-             class="form-control"
-             required>
+      <input
+        type="number"
+        name="year"
+        value="{{ vehicle.year }}"
+        class="form-control"
+        required
+      >
     </div>
 
-    <!-- Pre-filled VIN field -->
+    <!-- VIN -->
     <div class="col-md-8">
       <label class="form-label">VIN</label>
-      <input type="text"
-             name="vin"
-             value="{{ vehicle.vin }}"
-             class="form-control"
-             required>
+      <input
+        type="text"
+        name="vin"
+        value="{{ vehicle.vin }}"
+        class="form-control"
+        required
+      >
     </div>
 
-    <!-- Save/Cancel buttons -->
-    <div class="col-12">
-      <button type="submit" class="btn btn-primary">
-        Save Changes
-      </button>
-      <a href="{{ url_for('main.home') }}" class="btn btn-secondary">
-        Cancel
-      </a>
+    <!-- Photo preview + upload -->
+    <div class="col-md-6">
+      <label class="form-label">Photo (optional)</label>
+      {% if vehicle.photo_filename %}
+        <div class="mb-2">
+          <img
+            src="{{ url_for('static', filename='uploads/' ~ vehicle.photo_filename) }}"
+            class="img-thumbnail"
+            width="150"
+          >
+        </div>
+      {% endif %}
+      <input
+        type="file"
+        name="photo"
+        class="form-control"
+        accept="image/*"
+      >
     </div>
+
+    <!-- Invoice preview/link + upload -->
+    <div class="col-md-6">
+      <label class="form-label">Invoice (optional)</label>
+      {% if vehicle.invoice_filename %}
+        <p>
+          <a
+            href="{{ url_for('static', filename='uploads/' ~ vehicle.invoice_filename) }}"
+            target="_blank"
+          >
+            Download Current Invoice
+          </a>
+        </p>
+      {% endif %}
+      <input
+        type="file"
+        name="invoice"
+        class="form-control"
+        accept="application/pdf,image/*"
+      >
+    </div>
+
+    <!-- Save / Cancel -->
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+      <a href="{{ url_for('main.home') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+
   </form>
 {% endblock %}

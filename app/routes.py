@@ -1,29 +1,40 @@
 # app/routes.py
-# Main blueprint: listing (with search & pagination), plus CRUD routes
+import os
+from flask import (
+    Blueprint, render_template, request,
+    redirect, url_for, flash, current_app
+)
+from werkzeug.utils import secure_filename
+from flask_login import login_required, current_user
+from sqlalchemy import or_
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
 from .models import Vehicle
 from . import db
-from flask_login import login_required, current_user
-from sqlalchemy import or_  # to OR the search filters
 
 main = Blueprint('main', __name__)
+
+# Allowed extensions for uploads: images + PDFs
+ALLOWED_EXT = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
+
+def allowed_file(filename):
+    return (
+        '.' in filename and
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
+    )
 
 @main.route('/')
 def home():
     """
-    Home page:
-    - Supports optional 'q' query parameter for searching by make or model
-    - Supports optional 'page' query parameter for pagination
+    List view with optional search (?q=…) and pagination (?page=…).
     """
-    # 1. Read query params: search term 'q' and page number 'page'
+    # 1. Grab search term and page number
     q = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
 
-    # 2. Build base SQLAlchemy query
+    # 2. Start with all vehicles
     query = Vehicle.query
     if q:
-        # 2a. Apply case-insensitive search filter on make OR model
+        # Filter by make OR model, case-insensitive
         query = query.filter(
             or_(
                 Vehicle.make.ilike(f'%{q}%'),
@@ -31,19 +42,15 @@ def home():
             )
         )
 
-    # 3. Paginate: returns a Pagination object
+    # 3. Paginate: 10 per page
     pagination = query.order_by(Vehicle.id).paginate(
-        page=page,        # which page to return
-        per_page=10,      # items per page
-        error_out=False   # don’t 404 if page is out of range
+        page=page,
+        per_page=10,
+        error_out=False
     )
+    vehicles = pagination.items
 
-    vehicles = pagination.items  # the list of Vehicle objects for this page
-
-    # 4. Render template with:
-    #    - vehicles: current page’s items
-    #    - pagination: Pagination object for prev/next, page numbers
-    #    - q: original search term to preserve in links/forms
+    # 4. Render, passing vehicles, pagination object, and the search term back
     return render_template(
         'vehicles.html',
         vehicles=vehicles,
@@ -54,19 +61,84 @@ def home():
 @main.route('/add', methods=['GET', 'POST'])
 @login_required
 def add_vehicle():
-    # … your existing add_vehicle code …
-    pass
+    # Only admin/technician can add
+    if current_user.role not in ('admin', 'technician'):
+        flash('Access denied.', 'warning')
+        return redirect(url_for('main.home'))
+
+    if request.method == 'POST':
+        make, model = request.form['make'], request.form['model']
+        year, vin   = int(request.form['year']), request.form['vin']
+
+        # Handle photo upload
+        photo = request.files.get('photo')
+        photo_fn = None
+        if photo and allowed_file(photo.filename):
+            safe = secure_filename(photo.filename)
+            photo_fn = f"{vin}_{safe}"
+            photo.save(os.path.join(current_app.config['UPLOAD_FOLDER'], photo_fn))
+
+        # Handle invoice upload
+        invoice = request.files.get('invoice')
+        invoice_fn = None
+        if invoice and allowed_file(invoice.filename):
+            safe = secure_filename(invoice.filename)
+            invoice_fn = f"{vin}_invoice_{safe}"
+            invoice.save(os.path.join(current_app.config['UPLOAD_FOLDER'], invoice_fn))
+
+        v = Vehicle(
+            make=make, model=model, year=year, vin=vin,
+            photo_filename=photo_fn, invoice_filename=invoice_fn
+        )
+        db.session.add(v)
+        db.session.commit()
+        return redirect(url_for('main.home'))
+
+    return render_template('add_vehicle.html')
 
 @main.route('/edit/<int:vehicle_id>', methods=['GET', 'POST'])
 @login_required
 def edit_vehicle(vehicle_id):
-    # … your existing edit_vehicle code …
-    pass
+    # Only admin/technician can edit
+    if current_user.role not in ('admin', 'technician'):
+        flash('Access denied.', 'warning')
+        return redirect(url_for('main.home'))
+
+    vehicle = Vehicle.query.get_or_404(vehicle_id)
+    if request.method == 'POST':
+        vehicle.make, vehicle.model = request.form['make'], request.form['model']
+        vehicle.year, vehicle.vin   = int(request.form['year']), request.form['vin']
+
+        # Replace photo if given
+        photo = request.files.get('photo')
+        if photo and allowed_file(photo.filename):
+            safe = secure_filename(photo.filename)
+            fn = f"{vehicle.vin}_{safe}"
+            photo.save(os.path.join(current_app.config['UPLOAD_FOLDER'], fn))
+            vehicle.photo_filename = fn
+
+        # Replace invoice if given
+        invoice = request.files.get('invoice')
+        if invoice and allowed_file(invoice.filename):
+            safe = secure_filename(invoice.filename)
+            fn = f"{vehicle.vin}_invoice_{safe}"
+            invoice.save(os.path.join(current_app.config['UPLOAD_FOLDER'], fn))
+            vehicle.invoice_filename = fn
+
+        db.session.commit()
+        return redirect(url_for('main.home'))
+
+    return render_template('edit_vehicle.html', vehicle=vehicle)
 
 @main.route('/delete/<int:vehicle_id>')
 @login_required
 def delete_vehicle(vehicle_id):
-    # … your existing delete_vehicle code …
-    pass
+    # Only admin can delete
+    if current_user.role != 'admin':
+        flash('Access denied.', 'warning')
+        return redirect(url_for('main.home'))
 
-
+    v = Vehicle.query.get_or_404(vehicle_id)
+    db.session.delete(v)
+    db.session.commit()
+    return redirect(url_for('main.home'))
