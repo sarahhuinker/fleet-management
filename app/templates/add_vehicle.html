@@ -1,66 +1,47 @@
+{# app/templates/add_vehicle.html #}
 {% extends 'base.html' %}
 {% block title %}Add Vehicle{% endblock %}
 
 {% block content %}
-  <h1 class="mb-4">Add a New Vehicle</h1>
+<div class="container my-4">
+  <h1 class="mb-4">Add New Vehicle</h1>
 
-  <!--
-    enctype="multipart/form-data" is required to upload files.
-    We allow both an image (“photo”) and a PDF/image (“invoice”).
-  -->
   <form method="POST" enctype="multipart/form-data" class="row g-3">
-
     <!-- Make -->
     <div class="col-md-6">
-      <label class="form-label">Make</label>
-      <input type="text" name="make" class="form-control" required>
+      <label class="form-label" for="make">Make</label>
+      <input type="text" id="make" name="make" class="form-control" required>
     </div>
-
     <!-- Model -->
     <div class="col-md-6">
-      <label class="form-label">Model</label>
-      <input type="text" name="model" class="form-control" required>
+      <label class="form-label" for="model">Model</label>
+      <input type="text" id="model" name="model" class="form-control" required>
     </div>
-
     <!-- Year -->
     <div class="col-md-4">
-      <label class="form-label">Year</label>
-      <input type="number" name="year" class="form-control" required>
+      <label class="form-label" for="year">Year</label>
+      <input type="number" id="year" name="year" class="form-control" required>
     </div>
-
     <!-- VIN -->
     <div class="col-md-8">
-      <label class="form-label">VIN</label>
-      <input type="text" name="vin" class="form-control" required>
+      <label class="form-label" for="vin">VIN</label>
+      <input type="text" id="vin" name="vin" class="form-control" required>
     </div>
-
-    <!-- Photo upload (images only) -->
+    <!-- Photo upload -->
     <div class="col-md-6">
-      <label class="form-label">Photo (optional)</label>
-      <input
-        type="file"
-        name="photo"
-        class="form-control"
-        accept="image/*"
-      >
+      <label class="form-label" for="photo">Photo (optional)</label>
+      <input type="file" id="photo" name="photo" class="form-control" accept="image/*">
     </div>
-
-    <!-- Invoice upload (PDF or image) -->
+    <!-- Invoice upload -->
     <div class="col-md-6">
-      <label class="form-label">Invoice (optional)</label>
-      <input
-        type="file"
-        name="invoice"
-        class="form-control"
-        accept="application/pdf,image/*"
-      >
+      <label class="form-label" for="invoice">Invoice (optional)</label>
+      <input type="file" id="invoice" name="invoice" class="form-control" accept="application/pdf,image/*">
     </div>
-
     <!-- Submit / Cancel -->
-    <div class="col-12">
-      <button type="submit" class="btn btn-success">Add Vehicle</button>
+    <div class="col-12 text-end">
+      <button type="submit" class="btn btn-success me-2">Add Vehicle</button>
       <a href="{{ url_for('main.home') }}" class="btn btn-secondary">Cancel</a>
     </div>
-
   </form>
+</div>
 {% endblock %}
