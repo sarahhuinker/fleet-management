@@ -4,59 +4,128 @@
 
 {% block content %}
 <div class="container my-4">
+  {# Page heading #}
   <h1 class="mb-4">Edit Vehicle #{{ vehicle.id }}</h1>
 
+  {# Form: multipart for file uploads, uses Bootstrap grid #}
   <form method="POST" enctype="multipart/form-data" class="row g-3">
-    <!-- Make -->
-    <div class="col-md-6">
-      <label class="form-label" for="make">Make</label>
-      <input type="text" id="make" name="make"
-             class="form-control" value="{{ vehicle.make }}" required>
-    </div>
-    <!-- Model -->
-    <div class="col-md-6">
-      <label class="form-label" for="model">Model</label>
-      <input type="text" id="model" name="model"
-             class="form-control" value="{{ vehicle.model }}" required>
-    </div>
-    <!-- Year -->
+    {# ── Unit Number ──────────────────────────────────────────────────────────── #}
     <div class="col-md-4">
-      <label class="form-label" for="year">Year</label>
-      <input type="number" id="year" name="year"
-             class="form-control" value="{{ vehicle.year }}" required>
+      <label for="unit_no" class="form-label">Unit Number</label>
+      <input
+        type="text"
+        id="unit_no"
+        name="unit_no"
+        class="form-control"
+        value="{{ vehicle.unit_no or '' }}"
+        placeholder="e.g. 0001"
+        required>
+      <div class="form-text">
+        Internal identifier for sorting (numeric or padded).
+      </div>
     </div>
-    <!-- VIN -->
+
+    {# ── Make ──────────────────────────────────────────────────────────────────── #}
+    <div class="col-md-6">
+      <label for="make" class="form-label">Make</label>
+      <input
+        type="text"
+        id="make"
+        name="make"
+        class="form-control"
+        value="{{ vehicle.make }}"
+        required>
+    </div>
+
+    {# ── Model ─────────────────────────────────────────────────────────────────── #}
+    <div class="col-md-6">
+      <label for="model" class="form-label">Model</label>
+      <input
+        type="text"
+        id="model"
+        name="model"
+        class="form-control"
+        value="{{ vehicle.model }}"
+        required>
+    </div>
+
+    {# ── Year ──────────────────────────────────────────────────────────────────── #}
+    <div class="col-md-4">
+      <label for="year" class="form-label">Year</label>
+      <input
+        type="number"
+        id="year"
+        name="year"
+        class="form-control"
+        min="1900" max="2099"
+        value="{{ vehicle.year }}"
+        required>
+    </div>
+
+    {# ── VIN ───────────────────────────────────────────────────────────────────── #}
     <div class="col-md-8">
-      <label class="form-label" for="vin">VIN</label>
-      <input type="text" id="vin" name="vin"
-             class="form-control" value="{{ vehicle.vin }}" required>
+      <label for="vin" class="form-label">VIN</label>
+      <input
+        type="text"
+        id="vin"
+        name="vin"
+        class="form-control"
+        value="{{ vehicle.vin }}"
+        required>
     </div>
-    <!-- Photo preview + upload -->
+
+    {# ── Photo preview + upload ────────────────────────────────────────────────── #}
     <div class="col-md-6">
       <label class="form-label">Photo (optional)</label>
       {% if vehicle.photo_filename %}
         <div class="mb-2">
-          <img src="{{ url_for('static', filename='uploads/' ~ vehicle.photo_filename) }}"
-               class="img-thumbnail" width="150">
+          <img
+            src="{{ url_for('static', filename='uploads/' ~ vehicle.photo_filename) }}"
+            class="img-thumbnail"
+            width="150"
+            alt="Current vehicle photo">
         </div>
       {% endif %}
-      <input type="file" name="photo" class="form-control" accept="image/*">
+      <input
+        type="file"
+        name="photo"
+        class="form-control"
+        accept="image/png, image/jpeg, image/gif">
+      <div class="form-text">
+        Upload a new photo to replace the current one.
+      </div>
     </div>
-    <!-- Invoice preview + upload -->
+
+    {# ── Invoice preview + upload ──────────────────────────────────────────────── #}
     <div class="col-md-6">
       <label class="form-label">Invoice (optional)</label>
       {% if vehicle.invoice_filename %}
         <p>
-          <a href="{{ url_for('static', filename='uploads/' ~ vehicle.invoice_filename) }}"
-             target="_blank">Download Current Invoice</a>
+          <a
+            href="{{ url_for('static', filename='uploads/' ~ vehicle.invoice_filename) }}"
+            target="_blank">
+            Download Current Invoice
+          </a>
         </p>
       {% endif %}
-      <input type="file" name="invoice" class="form-control" accept="application/pdf,image/*">
+      <input
+        type="file"
+        name="invoice"
+        class="form-control"
+        accept="application/pdf, image/png, image/jpeg">
+      <div class="form-text">
+        Upload a new invoice to replace the current one.
+      </div>
     </div>
-    <!-- Save / Cancel -->
+
+    {# ── Save & Cancel Buttons ─────────────────────────────────────────────────── #}
     <div class="col-12 text-end">
-      <button type="submit" class="btn btn-primary me-2">Save Changes</button>
-      <a href="{{ url_for('main.home') }}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary me-2">
+        Save Changes
+      </button>
+      <a href="{{ url_for('main.home') }}" class="btn btn-secondary">
+        Cancel
+      </a>
     </div>
   </form>
 </div>

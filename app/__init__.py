@@ -1,23 +1,26 @@
 # app/__init__.py
+
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_migrate import Migrate  # NEW: for database migrations
 
 # ── Initialize extensions ───────────────────────────────────────────────────────
 db = SQLAlchemy()
+migrate = Migrate()         # NEW: instantiate Migrate without app
 login_manager = LoginManager()
 
-# ── Import models so SQLAlchemy sees them before create_all() ───────────────────
-from .models import Vehicle, WorkOrder, User
+# ── Import models so SQLAlchemy (and Migrate) see them before create_all() ──────
+from .models import Vehicle, WorkOrder, FuelLog, User  # FuelLog added
 
 def create_app():
     """
     Application factory:
-      - Configures Flask, SQLAlchemy, and Flask-Login
+      - Configures Flask, SQLAlchemy, Flask-Migrate, and Flask-Login
       - Loads CSV headers into app.config['VEHICLE_FIELDS']
       - Sets up upload folder
-      - Creates database tables
+      - Creates database tables (create_all) if not using migrations
       - Registers blueprints
     """
     app = Flask(__name__)
@@ -36,7 +39,6 @@ def create_app():
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
 
     # ── Load CSV headers for dynamic form fields ─────────────────────────────────
-    # app.root_path ends at .../my-webapp/app, so os.pardir brings us to project root
     project_root = os.path.abspath(os.path.join(app.root_path, os.pardir))
     header_path = os.path.join(project_root, 'vEHICLES.txt')
     with open(header_path, newline='') as f:
@@ -45,10 +47,12 @@ def create_app():
 
     # ── Initialize extensions with app ────────────────────────────────────────────
     db.init_app(app)
+    migrate.init_app(app, db)          # NEW: tie Migrate to Flask app & SQLAlchemy
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
 
-    # ── Create database tables (if they don’t exist) ─────────────────────────────
+    # ── Create database tables if they don’t exist ───────────────────────────────
+    # If you prefer using migrations only, you can remove or comment out create_all()
     with app.app_context():
         db.create_all()
 
