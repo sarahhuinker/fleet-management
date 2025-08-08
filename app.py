@@ -1,51 +1,40 @@
-# app/routes.py
-# Main blueprint: listing, searching, and CRUD for vehicles
+# app.py
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_migrate import Migrate
+import os
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from .models import Vehicle
-from . import db
-from flask_login import login_required, current_user
-from sqlalchemy import or_
+# Initialize Flask app
+app = Flask(__name__)
 
-main = Blueprint('main', __name__)
+# Configuration
+app.config['SECRET_KEY'] = 'your-secret-key'  # Change this!
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///fleet.db'
+app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 
-@main.route('/')
-def home():
-    # … your existing search/list code with 'q' …
-    return render_template('vehicles.html', vehicles=vehicles, q=q)
+# Initialize extensions
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
-@main.route('/add', methods=['GET', 'POST'])
-@login_required  # only logged-in users
-def add_vehicle():
-    """
-    Only 'admin' and 'technician' can add.
-    """
-    if current_user.role not in ('admin', 'technician'):
-        flash('Access denied: insufficient permissions.', 'warning')
-        return redirect(url_for('main.home'))
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
+login_manager.init_app(app)
 
-    # … your existing add logic …
+# Import and register blueprints
+from app.routes import main
+from app.auth import auth  # Optional: if you have auth routes
 
-@main.route('/edit/<int:vehicle_id>', methods=['GET', 'POST'])
-@login_required
-def edit_vehicle(vehicle_id):
-    """
-    Only 'admin' and 'technician' can edit.
-    """
-    if current_user.role not in ('admin', 'technician'):
-        flash('Access denied: insufficient permissions.', 'warning')
-        return redirect(url_for('main.home'))
+app.register_blueprint(main)
+app.register_blueprint(auth)  # Only include this if your app has authentication
 
-    # … your existing edit logic …
+# User loader for Flask-Login
+from app.models import User  # Replace with your user model if different
 
-@main.route('/delete/<int:vehicle_id>')
-@login_required
-def delete_vehicle(vehicle_id):
-    """
-    Only 'admin' can delete.
-    """
-    if current_user.role != 'admin':
-        flash('Access denied: only admins may delete.', 'warning')
-        return redirect(url_for('main.home'))
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
-    # … your existing delete logic …
+# Run the app
+if __name__ == "__main__":
+    app.run(debug=True)

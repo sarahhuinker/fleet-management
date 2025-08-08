@@ -1,397 +1,134 @@
-{# app/templates/vehicle_detail.html #}
 {% extends 'base.html' %}
-{% block title %}Edit Vehicle #{{ vehicle.id }}{% endblock %}
+{% block title %}Vehicle #{{ vehicle.unit_no or vehicle.id }}{% endblock %}
 
 {% block content %}
 <div class="container my-4">
+  <h1 class="mb-4">Vehicle Profile: {{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.unit_no or 'No Unit #' }})</h1>
 
-  <!-- Page header -->
-  <h1 class="mb-4">Edit Vehicle #{{ vehicle.id }}</h1>
+  <!-- ── Nav Tabs ─────────────────────────────────────────────── -->
+  <ul class="nav nav-tabs" id="vehicleTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">Overview</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="maintenance-tab" data-bs-toggle="tab" data-bs-target="#maintenance" type="button" role="tab">Maintenance</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="workorders-tab" data-bs-toggle="tab" data-bs-target="#workorders" type="button" role="tab">Work Orders</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="fuel-tab" data-bs-toggle="tab" data-bs-target="#fuel" type="button" role="tab">Fuel Logs</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="docs-tab" data-bs-toggle="tab" data-bs-target="#docs" type="button" role="tab">Documents</button>
+    </li>
+  </ul>
 
-  <!-- Form starts; multipart for file uploads -->
-  <form method="POST" enctype="multipart/form-data">
+  <!-- ── Tab Content ───────────────────────────────────────────── -->
+  <div class="tab-content border p-4 bg-white" id="vehicleTabContent">
 
-    <!-- ── BASIC INFO & STATUS ─────────────────────────────────────────────── -->
-    <!-- Group VIN, year, make/model, and out-of-service switch -->
-    <div class="card mb-4">
-      <div class="card-header bg-primary text-white">
-        Basic Info & Status
-      </div>
-      <div class="card-body">
-        <div class="row g-3 align-items-end">
-
-          <!-- Out-of-Service toggle -->
-          <div class="col-md-2">
-            <label class="form-label">Out of Service</label><br>
-            <div class="form-check form-switch">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                name="out_of_service"
-                id="out_of_service"
-                {% if vehicle.out_of_service %}checked{% endif %}
-              >
-            </div>
-          </div>
-
-          <!-- VIN / Serial Number (read-only) -->
-          <div class="col-md-4">
-            <label class="form-label">VIN/SN</label>
-            <input
-              type="text"
-              class="form-control"
-              name="vin"
-              value="{{ vehicle.vin }}"
-              readonly
-            >
-          </div>
-
-          <!-- Year input -->
-          <div class="col-md-2">
-            <label class="form-label">Year</label>
-            <input
-              type="number"
-              name="year"
-              class="form-control"
-              value="{{ vehicle.year }}"
-            >
-          </div>
-
-          <!-- Make & Model combined inputs -->
-          <div class="col-md-4">
-            <label class="form-label">Make & Model</label>
-            <div class="input-group">
-              <input
-                type="text"
-                name="make"
-                class="form-control"
-                placeholder="Make"
-                value="{{ vehicle.make }}"
-              >
-              <input
-                type="text"
-                name="model"
-                class="form-control"
-                placeholder="Model"
-                value="{{ vehicle.model }}"
-              >
-            </div>
-          </div>
-
+    <!-- Overview Tab -->
+    <div class="tab-pane fade show active" id="overview" role="tabpanel">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <strong>VIN:</strong> {{ vehicle.vin }}<br>
+          <strong>Year:</strong> {{ vehicle.year }}<br>
+          <strong>Make:</strong> {{ vehicle.make }}<br>
+          <strong>Model:</strong> {{ vehicle.model }}<br>
+          <strong>Unit No:</strong> {{ vehicle.unit_no }}<br>
+          <strong>Body:</strong> {{ vehicle.body }}<br>
+          <strong>Type:</strong> {{ vehicle.type }}
         </div>
+        <div class="col-md-4">
+          <strong>Odometer:</strong> {{ vehicle.odometer }}<br>
+          <strong>Hours:</strong> {{ vehicle.hours }}<br>
+          <strong>Chargeback:</strong> {{ vehicle.chargeback }}<br>
+          <strong>Department:</strong> {{ vehicle.department }}<br>
+          <strong>Manager:</strong> {{ vehicle.manager }}<br>
+          <strong>Director:</strong> {{ vehicle.director }}
+        </div>
+        <div class="col-md-4">
+          <strong>Location:</strong> {{ vehicle.location }}<br>
+          <strong>Building:</strong> {{ vehicle.building }}<br>
+          <strong>Registration Exp:</strong> {{ vehicle.registration_exp }}<br>
+          <strong>Inspection Exp:</strong> {{ vehicle.inspection_exp }}<br>
+          <strong>Insurance Exp:</strong> {{ vehicle.insurance_exp }}<br>
+        </div>
+      </div>
+      <div class="mt-4">
+        <a href="{{ url_for('main.edit_vehicle', vehicle_id=vehicle.id) }}" class="btn btn-primary">Edit Vehicle</a>
       </div>
     </div>
 
-    <!-- ── ASSET IDENTIFIERS ────────────────────────────────────────────────── -->
-    <!-- Fields for various asset identification numbers -->
-    <div class="card mb-4">
-      <div class="card-header bg-secondary text-white">
-        Asset Identifiers
+    <!-- Maintenance Tab -->
+    <div class="tab-pane fade" id="maintenance" role="tabpanel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>Maintenance Logs</h5>
+        <a href="{{ url_for('main.add_maintenance', vehicle_id=vehicle.id) }}" class="btn btn-sm btn-success">+ Add Maintenance</a>
       </div>
-      <div class="card-body">
-        <div class="row g-3">
-          {% for field,label in [
-            ('veh_no','Veh No'),
-            ('unit_no','Unit No'),
-            ('tag_no','Tag No'),
-            ('entity_code','Entity Code')
-          ] %}
-          <div class="col-md-3">
-            <label class="form-label">{{ label }}</label>
-            <input
-              type="text"
-              name="{{ field }}"
-              class="form-control"
-              value="{{ vehicle[field] }}"
-            >
-          </div>
+      {% if vehicle.maintenance_logs %}
+        <ul class="list-group">
+          {% for log in vehicle.maintenance_logs %}
+            <li class="list-group-item">
+              {{ log.date }} - {{ log.description }} ({{ log.cost }} USD)
+            </li>
           {% endfor %}
-        </div>
-      </div>
+        </ul>
+      {% else %}
+        <p>No maintenance records.</p>
+      {% endif %}
     </div>
 
-    <!-- ── TRACKING & UTILIZATION ─────────────────────────────────────────── -->
-    <!-- Odometer, hours, mode selector, auto utilization switch -->
-    <div class="card mb-4">
-      <div class="card-header bg-secondary text-white">
-        Tracking & Utilization
+    <!-- Work Orders Tab -->
+    <div class="tab-pane fade" id="workorders" role="tabpanel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>Work Orders</h5>
+        <a href="{{ url_for('main.add_work_order', vehicle_id=vehicle.id) }}" class="btn btn-sm btn-success">+ Add Work Order</a>
       </div>
-      <div class="card-body">
-        <div class="row g-3 align-items-center">
-
-          <!-- Odometer reading -->
-          <div class="col-md-2">
-            <label class="form-label">Odometer</label>
-            <input
-              type="number"
-              name="odometer"
-              class="form-control"
-              value="{{ vehicle.odometer }}"
-            >
-          </div>
-
-          <!-- Engine hours -->
-          <div class="col-md-2">
-            <label class="form-label">Hours</label>
-            <input
-              type="number"
-              name="hours"
-              class="form-control"
-              value="{{ vehicle.hours }}"
-            >
-          </div>
-
-          <!-- Utilization mode dropdown -->
-          <div class="col-md-3">
-            <label class="form-label">Mode</label>
-            <select name="utilization_mode" class="form-select">
-              {% for opt in ['odometer','hours','both'] %}
-              <option
-                value="{{ opt }}"
-                {% if vehicle.utilization_mode == opt %}selected{% endif %}
-              >
-                {{ opt|capitalize }}
-              </option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <!-- Auto utilization toggle -->
-          <div class="col-md-2">
-            <label class="form-label">Auto Util</label><br>
-            <div class="form-check form-switch">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                name="auto_util"
-                id="auto_util"
-                {% if vehicle.auto_utilization %}checked{% endif %}
-              >
-            </div>
-          </div>
-
-        </div>
-      </div>
+      <p>Work order table goes here…</p>
     </div>
 
-    <!-- ── RENEWALS ─────────────────────────────────────────────────────────── -->
-    <!-- Date pickers for registration, emission, inspection, insurance -->
-    <div class="card mb-4">
-      <div class="card-header bg-secondary text-white">
-        Renewals
+    <!-- Fuel Logs Tab -->
+    <div class="tab-pane fade" id="fuel" role="tabpanel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>Fuel Logs</h5>
+        <a href="{{ url_for('main.add_fuel_log', vehicle_id=vehicle.id) }}" class="btn btn-sm btn-success">+ Add Fuel Log</a>
       </div>
-      <div class="card-body">
-        <div class="row g-3">
-          {% for field,label in [
-            ('registration_date','Registration'),
-            ('emission_date','Emission'),
-            ('inspection_date','Inspection'),
-            ('insurance_date','Insurance')
-          ] %}
-          <div class="col-md-3">
-            <label class="form-label">{{ label }}</label>
-            <input
-              type="date"
-              name="{{ field }}"
-              class="form-control"
-              value="{{ vehicle[field].isoformat() if vehicle[field] else '' }}"
-            >
-          </div>
+      {% if vehicle.fuel_logs %}
+        <ul class="list-group">
+          {% for fuel in vehicle.fuel_logs %}
+            <li class="list-group-item">
+              {{ fuel.date }} - {{ fuel.gallons }} gal @ ${{ fuel.price_per_gallon }} (MPG: {{ fuel.mpg }})
+            </li>
           {% endfor %}
-        </div>
-      </div>
+        </ul>
+      {% else %}
+        <p>No fuel records.</p>
+      {% endif %}
     </div>
 
-    <!-- ── OPERATOR & LOCATION ──────────────────────────────────────────────── -->
-    <!-- Info about who operates and where the vehicle is based -->
-    <div class="card mb-4">
-      <div class="card-header bg-secondary text-white">
-        Operator & Location
-      </div>
-      <div class="card-body">
-        <div class="row g-3">
-          {% for field,label in [
-            ('operator','Operator'),
-            ('location','Location'),
-            ('building','Building'),
-            ('email','Email'),
-            ('sms','SMS'),
-            ('ezpass','E-ZPass'),
-            ('fuel_card','Fuel Card')
-          ] %}
-          <div class="col-md-3">
-            <label class="form-label">{{ label }}</label>
-            <input
-              type="{{ 'email' if field=='email' else 'text' }}"
-              name="{{ field }}"
-              class="form-control"
-              value="{{ vehicle[field] }}"
-            >
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-
-    <!-- ── ORGANIZATION ──────────────────────────────────────────────────────── -->
-    <!-- Departmental and managerial assignment -->
-    <div class="card mb-4">
-      <div class="card-header bg-secondary text-white">
-        Organization
-      </div>
-      <div class="card-body">
-        <div class="row g-3">
-          {% for field,label in [
-            ('chargeback','Chargeback'),
-            ('department','Department'),
-            ('manager','Manager'),
-            ('director','Director')
-          ] %}
-          <div class="col-md-3">
-            <label class="form-label">{{ label }}</label>
-            <input
-              type="text"
-              name="{{ field }}"
-              class="form-control"
-              value="{{ vehicle[field] }}"
-            >
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-
-    <!-- ── WORK ORDER DEFAULTS ──────────────────────────────────────────────── -->
-    <!-- Default options for new work orders -->
-    <div class="card mb-4">
-      <div class="card-header bg-secondary text-white">
-        Work Order Defaults
-      </div>
-      <div class="card-body">
-        <div class="row g-3 align-items-center">
-          <!-- WO Type radio buttons -->
-          <div class="col-md-3">
-            <label class="form-label">WO Type</label><br>
-            {% for opt in ['Employee','Vendor'] %}
-            <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="default_wodefault"
-                value="{{ opt }}"
-                {% if vehicle.default_wodefault==opt %}checked{% endif %}
-              >
-              <label class="form-check-label">{{ opt }}</label>
-            </div>
-            {% endfor %}
-          </div>
-          <!-- Other default fields -->
-          <div class="col-md-3">
-            <label class="form-label">Parts Vendor</label>
-            <input
-              type="text"
-              name="default_parts_vendor"
-              class="form-control"
-              value="{{ vehicle.default_parts_vendor }}"
-            >
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Issued/Serviced By</label>
-            <input
-              type="text"
-              name="default_issued_by"
-              class="form-control"
-              value="{{ vehicle.default_issued_by }}"
-            >
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Inventory Warehouse</label>
-            <input
-              type="text"
-              name="inventory_warehouse"
-              class="form-control"
-              value="{{ vehicle.inventory_warehouse }}"
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── CUSTOM FIELDS ─────────────────────────────────────────────────────── -->
-    <!-- Freeform text area for any additional info -->
-    <div class="card mb-4">
-      <div class="card-header bg-secondary text-white">
-        Custom Fields
-      </div>
-      <div class="card-body">
-        <textarea
-          name="custom_fields"
-          class="form-control"
-          rows="3"
-          placeholder="Any additional custom info…"
-        >{{ vehicle.custom_fields }}</textarea>
-      </div>
-    </div>
-
-    <!-- ── PHOTO & INVOICE UPLOADS ───────────────────────────────────────────── -->
-    <!-- Upload new photo and invoice files -->
-    <div class="card mb-4">
-      <div class="card-header bg-secondary text-white">
-        Uploads
-      </div>
-      <div class="card-body row g-4">
-
-        <!-- Photo upload section -->
+    <!-- Documents Tab -->
+    <div class="tab-pane fade" id="docs" role="tabpanel">
+      <div class="row">
         <div class="col-md-6">
-          <label class="form-label">Photo</label>
+          <h6>Photo</h6>
           {% if vehicle.photo_filename %}
-            <img
-              src="{{ url_for('static', filename='uploads/' ~ vehicle.photo_filename) }}"
-              class="img-thumbnail mb-2"
-              width="150"
-            >
+            <img src="{{ url_for('static', filename='uploads/' ~ vehicle.photo_filename) }}" class="img-fluid rounded border">
+          {% else %}
+            <p>No photo uploaded.</p>
           {% endif %}
-          <input
-            type="file"
-            name="photo"
-            class="form-control"
-            accept="image/*"
-          >
         </div>
-
-        <!-- Invoice upload section -->
         <div class="col-md-6">
-          <label class="form-label">Invoice</label>
+          <h6>Invoice</h6>
           {% if vehicle.invoice_filename %}
-            <p>
-              <a
-                href="{{ url_for('static', filename='uploads/' ~ vehicle.invoice_filename) }}"
-                class="btn btn-sm btn-outline-secondary"
-                target="_blank"
-              >View Current Invoice</a>
-            </p>
+            <a href="{{ url_for('static', filename='uploads/' ~ vehicle.invoice_filename) }}" target="_blank" class="btn btn-outline-primary">View Invoice</a>
+          {% else %}
+            <p>No invoice uploaded.</p>
           {% endif %}
-          <input
-            type="file"
-            name="invoice"
-            class="form-control"
-            accept="application/pdf,image/*"
-          >
         </div>
-
       </div>
     </div>
 
-    <!-- ── SAVE / BACK ───────────────────────────────────────────────────────── -->
-    <div class="d-flex justify-content-end">
-      <button type="submit" class="btn btn-success me-2">
-        Save All Changes
-      </button>
-      <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary">
-        ← Back to List
-      </a>
-    </div>
-
-  </form>
+  </div>
 </div>
 {% endblock %}

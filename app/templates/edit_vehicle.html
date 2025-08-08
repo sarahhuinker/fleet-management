@@ -4,128 +4,169 @@
 
 {% block content %}
 <div class="container my-4">
-  {# Page heading #}
-  <h1 class="mb-4">Edit Vehicle #{{ vehicle.id }}</h1>
+  <h2 class="mb-4">Edit Vehicle – {{ vehicle.unit_no or vehicle.id }}</h2>
 
-  {# Form: multipart for file uploads, uses Bootstrap grid #}
-  <form method="POST" enctype="multipart/form-data" class="row g-3">
-    {# ── Unit Number ──────────────────────────────────────────────────────────── #}
-    <div class="col-md-4">
-      <label for="unit_no" class="form-label">Unit Number</label>
-      <input
-        type="text"
-        id="unit_no"
-        name="unit_no"
-        class="form-control"
-        value="{{ vehicle.unit_no or '' }}"
-        placeholder="e.g. 0001"
-        required>
-      <div class="form-text">
-        Internal identifier for sorting (numeric or padded).
-      </div>
-    </div>
+  <form method="POST" enctype="multipart/form-data">
 
-    {# ── Make ──────────────────────────────────────────────────────────────────── #}
-    <div class="col-md-6">
-      <label for="make" class="form-label">Make</label>
-      <input
-        type="text"
-        id="make"
-        name="make"
-        class="form-control"
-        value="{{ vehicle.make }}"
-        required>
-    </div>
+    <!-- Tab Headers -->
+    <ul class="nav nav-tabs" id="vehicleTabs" role="tablist">
+      {% for tab in ['General', 'Classification', 'Tracking', 'Renewals', 'Organization', 'Location', 'Uploads'] %}
+        <li class="nav-item" role="presentation">
+          <button class="nav-link {% if loop.first %}active{% endif %}" id="{{ tab | replace(' ', '') }}-tab"
+            data-bs-toggle="tab" data-bs-target="#{{ tab | replace(' ', '') }}" type="button" role="tab">
+            {{ tab }}
+          </button>
+        </li>
+      {% endfor %}
+    </ul>
 
-    {# ── Model ─────────────────────────────────────────────────────────────────── #}
-    <div class="col-md-6">
-      <label for="model" class="form-label">Model</label>
-      <input
-        type="text"
-        id="model"
-        name="model"
-        class="form-control"
-        value="{{ vehicle.model }}"
-        required>
-    </div>
+    <!-- Tab Content -->
+    <div class="tab-content border p-4 bg-light" id="vehicleTabsContent">
 
-    {# ── Year ──────────────────────────────────────────────────────────────────── #}
-    <div class="col-md-4">
-      <label for="year" class="form-label">Year</label>
-      <input
-        type="number"
-        id="year"
-        name="year"
-        class="form-control"
-        min="1900" max="2099"
-        value="{{ vehicle.year }}"
-        required>
-    </div>
-
-    {# ── VIN ───────────────────────────────────────────────────────────────────── #}
-    <div class="col-md-8">
-      <label for="vin" class="form-label">VIN</label>
-      <input
-        type="text"
-        id="vin"
-        name="vin"
-        class="form-control"
-        value="{{ vehicle.vin }}"
-        required>
-    </div>
-
-    {# ── Photo preview + upload ────────────────────────────────────────────────── #}
-    <div class="col-md-6">
-      <label class="form-label">Photo (optional)</label>
-      {% if vehicle.photo_filename %}
-        <div class="mb-2">
-          <img
-            src="{{ url_for('static', filename='uploads/' ~ vehicle.photo_filename) }}"
-            class="img-thumbnail"
-            width="150"
-            alt="Current vehicle photo">
+      <!-- General -->
+      <div class="tab-pane fade show active" id="General" role="tabpanel">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="unit_no" class="form-label">Unit Number</label>
+            <input type="text" name="unit_no" class="form-control" value="{{ vehicle.unit_no or '' }}" required>
+            <div class="form-text">Internal identifier for sorting (numeric or padded).</div>
+          </div>
+          <div class="col-md-4">
+            <label for="make" class="form-label">Make</label>
+            <input type="text" name="make" class="form-control" value="{{ vehicle.make }}" required>
+          </div>
+          <div class="col-md-4">
+            <label for="model" class="form-label">Model</label>
+            <input type="text" name="model" class="form-control" value="{{ vehicle.model }}" required>
+          </div>
+          <div class="col-md-4">
+            <label for="year" class="form-label">Year</label>
+            <input type="number" name="year" class="form-control" value="{{ vehicle.year }}" min="1900" max="2099" required>
+          </div>
+          <div class="col-md-8">
+            <label for="vin" class="form-label">VIN</label>
+            <input type="text" name="vin" class="form-control" value="{{ vehicle.vin }}" required>
+          </div>
         </div>
-      {% endif %}
-      <input
-        type="file"
-        name="photo"
-        class="form-control"
-        accept="image/png, image/jpeg, image/gif">
-      <div class="form-text">
-        Upload a new photo to replace the current one.
       </div>
-    </div>
 
-    {# ── Invoice preview + upload ──────────────────────────────────────────────── #}
-    <div class="col-md-6">
-      <label class="form-label">Invoice (optional)</label>
-      {% if vehicle.invoice_filename %}
-        <p>
-          <a
-            href="{{ url_for('static', filename='uploads/' ~ vehicle.invoice_filename) }}"
-            target="_blank">
-            Download Current Invoice
-          </a>
-        </p>
-      {% endif %}
-      <input
-        type="file"
-        name="invoice"
-        class="form-control"
-        accept="application/pdf, image/png, image/jpeg">
-      <div class="form-text">
-        Upload a new invoice to replace the current one.
+      <!-- Classification -->
+      <div class="tab-pane fade" id="Classification" role="tabpanel">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Type</label>
+            <input type="text" name="type" class="form-control" value="{{ vehicle.type }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Body</label>
+            <input type="text" name="body" class="form-control" value="{{ vehicle.body }}">
+          </div>
+        </div>
       </div>
-    </div>
 
-    {# ── Save & Cancel Buttons ─────────────────────────────────────────────────── #}
-    <div class="col-12 text-end">
-      <button type="submit" class="btn btn-primary me-2">
-        Save Changes
-      </button>
-      <a href="{{ url_for('main.home') }}" class="btn btn-secondary">
-        Cancel
-      </a>
+      <!-- Tracking -->
+      <div class="tab-pane fade" id="Tracking" role="tabpanel">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Odometer</label>
+            <input type="number" name="odometer" class="form-control" value="{{ vehicle.odometer }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Engine Hours</label>
+            <input type="number" name="hours" class="form-control" value="{{ vehicle.hours }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Renewals -->
+      <div class="tab-pane fade" id="Renewals" role="tabpanel">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Registration Expiration</label>
+            <input type="date" name="registration_exp" class="form-control" value="{{ vehicle.registration_exp }}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Inspection Expiration</label>
+            <input type="date" name="inspection_exp" class="form-control" value="{{ vehicle.inspection_exp }}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Insurance Expiration</label>
+            <input type="date" name="insurance_exp" class="form-control" value="{{ vehicle.insurance_exp }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Organization -->
+      <div class="tab-pane fade" id="Organization" role="tabpanel">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Chargeback</label>
+            <input type="text" name="chargeback" class="form-control" value="{{ vehicle.chargeback }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Department</label>
+            <input type="text" name="department" class="form-control" value="{{ vehicle.department }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Manager</label>
+            <input type="text" name="manager" class="form-control" value="{{ vehicle.manager }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Director</label>
+            <input type="text" name="director" class="form-control" value="{{ vehicle.director }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="tab-pane fade" id="Location" role="tabpanel">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Location</label>
+            <input type="text" name="location" class="form-control" value="{{ vehicle.location }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Building</label>
+            <input type="text" name="building" class="form-control" value="{{ vehicle.building }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Uploads -->
+      <div class="tab-pane fade" id="Uploads" role="tabpanel">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Vehicle Photo</label>
+            {% if vehicle.photo_filename %}
+              <div class="mb-2">
+                <img src="{{ url_for('static', filename='uploads/' ~ vehicle.photo_filename) }}" class="img-thumbnail" width="150">
+              </div>
+            {% endif %}
+            <input type="file" name="photo" class="form-control" accept="image/png, image/jpeg, image/gif">
+            <div class="form-text">Upload new photo to replace current one.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Invoice File</label>
+            {% if vehicle.invoice_filename %}
+              <p>
+                <a href="{{ url_for('static', filename='uploads/' ~ vehicle.invoice_filename) }}" target="_blank">
+                  Download Current Invoice
+                </a>
+              </p>
+            {% endif %}
+            <input type="file" name="invoice" class="form-control" accept="application/pdf, image/png, image/jpeg">
+            <div class="form-text">Upload new invoice to replace current one.</div>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- /.tab-content -->
+
+    <!-- Buttons -->
+    <div class="mt-4 text-end">
+      <button type="submit" class="btn btn-primary me-2">Save Changes</button>
+      <a href="{{ url_for('main.home') }}" class="btn btn-secondary">Cancel</a>
     </div>
   </form>
 </div>

@@ -2,15 +2,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Required meta tags for proper rendering and touch zooming -->
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Page title; child templates can override via the title block -->
   <title>{% block title %}Fleet Management{% endblock %}</title>
 
-  <!-- ── Bootstrap CSS ────────────────────────────────────────────────────────── -->
-  <!-- Using Bootstrap 5 CDN for layout, grid, components, and utilities -->
+  <!-- ── Bootstrap 5 CSS ───────────────────────────────────────────────────────── -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
     rel="stylesheet"
@@ -18,106 +14,80 @@
     crossorigin="anonymous"
   >
 
-  <!-- ── AdminLTE CSS ────────────────────────────────────────────────────────── -->
+  <!-- ── AdminLTE CSS ──────────────────────────────────────────────────────────── -->
   <link
     rel="stylesheet"
     href="{{ url_for('static', filename='adminlte/css/adminlte.min.css') }}"
   >
 
-  <!-- ── Font Awesome Icons ───────────────────────────────────────────────────── -->
+  <!-- ── FontAwesome Icons ─────────────────────────────────────────────────────── -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    integrity="sha512-pVf…REPLACE_WITH_ACTUAL_HASH…=="
+    integrity="sha512-pap3GfBZs6U4YlVcFjY3j1xq+VvG8cQ5kuRloU4P78fGyDJpgowY5qdrp9FcA5ZsHeqV/jmN9m57Vj9ZJP+uKg=="
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
   >
 
-  <!-- ── Custom CSS (optional) ───────────────────────────────────────────────── -->
-  {# <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet"> #}
+  <!-- ── DataTables CSS ────────────────────────────────────────────────────────── -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"
+  >
+
+  {% block head %}{% endblock %}
 </head>
+
 <body class="hold-transition sidebar-mini layout-fixed">
   <div class="wrapper">
 
-    <!-- ── Navigation Bar (Bootstrap) ─────────────────────────────────────────── -->
+    <!-- ── Navbar ──────────────────────────────────────────────────────────────── -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <!-- Brand / Logo linking back to home page -->
         <a class="navbar-brand" href="{{ url_for('main.home') }}">FleetApp</a>
-
-        <!-- Toggler for mobile view -->
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarContent"
-          aria-controls="navbarContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
           <span class="navbar-toggler-icon"></span>
         </button>
-
-        <!-- Collapsible content: links change based on auth status -->
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav ms-auto">
             {% if current_user.is_authenticated %}
-              <!-- Greeting and role -->
-              <li class="nav-item">
-                <span class="nav-link">
-                  Hi, {{ current_user.username }} ({{ current_user.role }})
-                </span>
-              </li>
-              <!-- Logout link -->
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
-              </li>
+              <li class="nav-item"><span class="nav-link">Hi, {{ current_user.username }}</span></li>
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
             {% else %}
-              <!-- Login & Register links for guests -->
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
-              </li>
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.register') }}">Register</a></li>
             {% endif %}
           </ul>
         </div>
       </div>
     </nav>
 
-    <!-- ── Content Wrapper (AdminLTE) ───────────────────────────────────────────── -->
-    <div class="content-wrapper">
-      <!-- ── Main Content Container ───────────────────────────────────────────────── -->
-      <div class="container my-4">
-        {% block content %}
-        <!-- Child templates inject their page content here -->
-        {% endblock %}
-      </div>
-    </div>
+    <!-- ── Main Content Area ────────────────────────────────────────────────────── -->
+    {% block content %}{% endblock %}
 
   </div><!-- /.wrapper -->
 
-  <!-- ── Bootstrap JS Bundle (with Popper) ──────────────────────────────────────── -->
+  <!-- ── Bootstrap JS Bundle (includes Popper & tab support) ───────────────────── -->
   <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-zVF7H4YkGkUJ0kG1Q2EmdmcQeeYlBS1BlVZUqR2HUFRvJo0ieGizqPLForn4jea"
     crossorigin="anonymous"
   ></script>
 
-  <!-- ── jQuery (required for AdminLTE features) ───────────────────────────────── -->
+  <!-- ── jQuery (required by AdminLTE & DataTables) ────────────────────────────── -->
   <script
     src="https://code.jquery.com/jquery-3.7.0.min.js"
-    integrity="sha256-…REPLACE_WITH_ACTUAL_HASH…"
+    integrity="sha256-6Yjanm3lO7zKUhKXTS1TPxvH1hNu2S9hxEGHc5TIt7E="
     crossorigin="anonymous"
   ></script>
 
-  <!-- ── AdminLTE App JS ────────────────────────────────────────────────────────── -->
-  <script
-    src="{{ url_for('static', filename='adminlte/js/adminlte.min.js') }}"
-  ></script>
+  <!-- ── AdminLTE JavaScript ───────────────────────────────────────────────────── -->
+  <script src="{{ url_for('static', filename='adminlte/js/adminlte.min.js') }}"></script>
 
-  <!-- ── Custom JS (optional) ─────────────────────────────────────────────────── -->
-  {# <script src="{{ url_for('static', filename='js/custom.js') }}"></script> #}
+  <!-- ── DataTables JS for sortable tables ─────────────────────────────────────── -->
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+  {% block scripts %}{% endblock %}
 </body>
 </html>

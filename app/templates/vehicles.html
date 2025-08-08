@@ -5,19 +5,23 @@
 
 {% block content %}
 <div class="content-wrapper">
-  <!-- 1) Page header -->
+
+  <!-- 🔷 Page Header: Title & Add Button -->
   <section class="content-header">
-    <div class="container-fluid">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
       <h1>Fleet Assets</h1>
+      <a href="{{ url_for('main.add_vehicle') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Add Vehicle
+      </a>
     </div>
   </section>
 
-  <!-- 2) Main content -->
+  <!-- 🔷 Main Content Area -->
   <section class="content">
     <div class="container-fluid">
-
-      <!-- 2a) Asset list card with tabs -->
       <div class="card">
+
+        <!-- 🔹 Tab Navigation -->
         <div class="card-header p-2">
           <ul class="nav nav-pills">
             <li class="nav-item">
@@ -34,86 +38,82 @@
             </li>
           </ul>
         </div>
+
         <div class="card-body">
           <div class="tab-content">
 
-            <!-- 2a.i) Assets tab -->
+            <!-- 🔸 Assets Tab Content -->
             <div class="tab-pane fade show active" id="assets">
-              <!-- Search form (optional) -->
+
+              <!-- 🔍 Search Bar -->
               <form method="get" class="mb-3">
                 <div class="input-group">
-                  <input
-                    type="text"
-                    name="q"
-                    class="form-control"
-                    placeholder="Search Make, Model, Unit No"
-                    value="{{ q }}"
-                  >
+                  <input type="text" name="q" class="form-control" placeholder="Search Make, Model, Unit No" value="{{ q }}">
                   <button class="btn btn-primary">Search</button>
                 </div>
               </form>
 
-              <!-- Vehicle table -->
-              <table id="vehicleTable" class="table table-striped">
-                <thead>
+              <!-- 🚗 Vehicle Table -->
+              <table id="vehicleTable" class="table table-striped table-hover table-bordered align-middle">
+                <thead class="table-light">
                   <tr>
-                    <th>Veh No</th>
-                    <th>Tag No</th>
-                    <th>Unit No</th>
-                    <th>Year</th>
-                    <th>Make</th>
-                    <th>Model</th>
+                    <th scope="col">Unit No</th>
+                    <th scope="col">Year</th>
+                    <th scope="col">Make</th>
+                    <th scope="col">Model</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Body</th>
+                    <th scope="col">VIN</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for v in vehicles %}
                   <tr>
-                    <td><a href="{{ url_for('main.vehicle_detail', vehicle_id=v.id) }}">{{ v.veh_no }}</a></td>
-                    <td>{{ v.tag_no }}</td>
-                    <td>{{ v.unit_no }}</td>
+                    <!-- 🔗 Clickable Unit Number links to Maintenance Logs -->
+                    <td>
+                      <a href="{{ url_for('main.view_logs', vehicle_id=v.id) }}">{{ v.unit_no }}</a>
+                    </td>
                     <td>{{ v.year }}</td>
                     <td>{{ v.make }}</td>
                     <td>{{ v.model }}</td>
+                    <td>{{ v.data.get('type', '') }}</td>
+                    <td>{{ v.data.get('body', '') }}</td>
+                    <td>{{ v.vin }}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
               </table>
 
-              <!-- Pagination links -->
+              <!-- 📄 Pagination Controls -->
               <nav aria-label="Vehicle pagination">
                 <ul class="pagination justify-content-center">
+                  <!-- Previous page -->
                   {% if pagination.has_prev %}
-                  <li class="page-item">
-                    <a
-                      class="page-link"
-                      href="{{ url_for('main.home', page=pagination.prev_num, q=q) }}"
-                    >« Prev</a>
-                  </li>
+                    <li class="page-item">
+                      <a class="page-link" href="{{ url_for('main.home', page=pagination.prev_num, q=q) }}">« Prev</a>
+                    </li>
                   {% else %}
-                  <li class="page-item disabled"><span class="page-link">« Prev</span></li>
+                    <li class="page-item disabled"><span class="page-link">« Prev</span></li>
                   {% endif %}
 
+                  <!-- Current page info -->
                   <li class="page-item disabled">
-                    <span class="page-link">
-                      Page {{ pagination.page }} of {{ pagination.pages }}
-                    </span>
+                    <span class="page-link">Page {{ pagination.page }} of {{ pagination.pages }}</span>
                   </li>
 
+                  <!-- Next page -->
                   {% if pagination.has_next %}
-                  <li class="page-item">
-                    <a
-                      class="page-link"
-                      href="{{ url_for('main.home', page=pagination.next_num, q=q) }}"
-                    >Next »</a>
-                  </li>
+                    <li class="page-item">
+                      <a class="page-link" href="{{ url_for('main.home', page=pagination.next_num, q=q) }}">Next »</a>
+                    </li>
                   {% else %}
-                  <li class="page-item disabled"><span class="page-link">Next »</span></li>
+                    <li class="page-item disabled"><span class="page-link">Next »</span></li>
                   {% endif %}
                 </ul>
               </nav>
             </div>
 
-            <!-- 2a.ii) Other tabs (placeholders for later) -->
+            <!-- 🔸 Placeholder Tabs -->
             <div class="tab-pane fade" id="pending">
               <p>Pending Orders…</p>
             </div>
@@ -124,21 +124,26 @@
               <p>Completed Orders…</p>
             </div>
 
-          </div>
-        </div>
-      </div>
+          </div> <!-- /.tab-content -->
+        </div> <!-- /.card-body -->
 
-      <!-- 2b) Detail pane: fuel log & image/gauges -->
-      <div class="row mt-4">
-        <div class="col-md-8">
-          <!-- You can later inject your fuel log or work order tables here -->
-        </div>
-        <div class="col-md-4">
-          <!-- And your vehicle image + maintenance gauges here -->
-        </div>
-      </div>
-
-    </div>
+      </div> <!-- /.card -->
+    </div> <!-- /.container-fluid -->
   </section>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- 🧠 DataTables: Make the table interactive -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    $('#vehicleTable').DataTable({
+      paging: false,    // Disable DataTables pagination (Flask handles it)
+      info: false,      // Hide "Showing 1 to 10 of X"
+      searching: true,  // Enable search box
+      ordering: true,   // Allow sorting by column
+      order: [[0, 'asc']]  // Default sort by Unit No
+    });
+  });
+</script>
 {% endblock %}

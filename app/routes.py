@@ -259,3 +259,40 @@ def delete_vehicle(vehicle_id):
     db.session.commit()
     flash('Vehicle deleted.', 'success')
     return redirect(url_for('main.home'))
+# app/routes.py
+
+from flask import render_template, request, redirect, url_for, flash
+from app.models import Vehicle, MaintenanceLog
+from app import db
+from datetime import datetime
+
+# Show logs for a specific vehicle
+@main.route('/vehicle/<int:vehicle_id>/logs')
+def view_logs(vehicle_id):
+    vehicle = Vehicle.query.get_or_404(vehicle_id)
+    logs = MaintenanceLog.query.filter_by(vehicle_id=vehicle_id).order_by(MaintenanceLog.service_date.desc()).all()
+    return render_template('maintenance_logs.html', vehicle=vehicle, logs=logs)
+
+# Add new log entry
+@main.route('/vehicle/<int:vehicle_id>/logs/add', methods=['GET', 'POST'])
+def add_log(vehicle_id):
+    vehicle = Vehicle.query.get_or_404(vehicle_id)
+    if request.method == 'POST':
+        service_date = request.form['service_date']
+        service_type = request.form['service_type']
+        notes = request.form['notes']
+        cost = request.form['cost']
+
+        log = MaintenanceLog(
+            vehicle_id=vehicle.id,
+            service_date=datetime.strptime(service_date, '%Y-%m-%d'),
+            service_type=service_type,
+            notes=notes,
+            cost=float(cost) if cost else 0
+        )
+        db.session.add(log)
+        db.session.commit()
+        flash('Maintenance log added.', 'success')
+        return redirect(url_for('main.view_logs', vehicle_id=vehicle.id))
+
+    return render_template('add_log.html', vehicle=vehicle)

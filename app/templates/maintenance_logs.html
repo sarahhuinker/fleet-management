@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Maintenance Logs - {{ vehicle.unit_no }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Maintenance Logs for Vehicle {{ vehicle.unit_no }}</h2>
+  <a href="{{ url_for('main.add_log', vehicle_id=vehicle.id) }}" class="btn btn-primary my-3">Add Log</a>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Service Type</th>
+        <th>Cost</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td>{{ log.service_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ log.service_type }}</td>
+        <td>${{ '%.2f'|format(log.cost) }}</td>
+        <td>{{ log.notes }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
